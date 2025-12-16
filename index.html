@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>表象心理旋转实验</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 欢迎界面 -->
+        <div id="welcome-screen" class="screen active">
+            <h1>表象心理旋转实验</h1>
+            <div class="instructions">
+                <h2>实验说明</h2>
+                <p>在这个实验中，您将看到一个旋转的字母 <strong>"R"</strong>。</p>
+                <p>您的任务是：</p>
+                <ul>
+                    <li>如果字母是 <strong>正常 R</strong>（正向），请按 <span class="key">F</span> 键</li>
+                    <li>如果字母是 <strong>镜像 R</strong>（反向），请按 <span class="key">J</span> 键</li>
+                </ul>
+                <p>字母会以不同的角度（0°, 60°, 120°, 180°, 240°, 300°）呈现。</p>
+                <p>请尽可能<strong>快速而准确</strong>地做出判断。</p>
+                <p>实验共有 <span id="total-trials">60</span> 个试次。</p>
+            </div>
+            <div class="demographics">
+                <h3>参与者信息</h3>
+                <div class="form-group">
+                    <label for="participant-id">参与者编号：</label>
+                    <input type="text" id="participant-id" placeholder="例如：P001" required>
+                </div>
+                <div class="form-group">
+                    <label for="age">年龄：</label>
+                    <input type="number" id="age" min="1" max="120" placeholder="请输入年龄" required>
+                </div>
+                <div class="form-group">
+                    <label>性别：</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="gender" value="male" required> 男</label>
+                        <label><input type="radio" name="gender" value="female"> 女</label>
+                        <label><input type="radio" name="gender" value="other"> 其他</label>
+                        <label><input type="radio" name="gender" value="prefer_not_to_say"> 不愿透露</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="handedness">利手：</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="handedness" value="right" required> 右利手</label>
+                        <label><input type="radio" name="handedness" value="left"> 左利手</label>
+                        <label><input type="radio" name="handedness" value="both"> 双手皆可</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="education">教育程度：</label>
+                    <select id="education" required>
+                        <option value="">请选择</option>
+                        <option value="high_school">高中/中专及以下</option>
+                        <option value="bachelor">本科/大专</option>
+                        <option value="master">硕士</option>
+                        <option value="phd">博士</option>
+                    </select>
+                </div>
+            </div>
+            <button id="start-btn" class="btn">开始练习</button>
+        </div>
+
+        <!-- 练习说明 -->
+        <div id="practice-instructions" class="screen">
+            <h1>练习阶段</h1>
+            <div class="instructions">
+                <p>现在开始练习阶段，共有 <span id="practice-count">6</span> 个试次。</p>
+                <p>这不会计入正式数据，目的是让您熟悉实验流程。</p>
+                <p>准备好后请按空格键开始第一个试次。</p>
+                <div class="example">
+                    <div class="example-item">
+                        <div class="letter-display normal">R</div>
+                        <p>正常 R → 按 <span class="key">F</span></p>
+                    </div>
+                    <div class="example-item">
+                        <div class="letter-display mirrored">R</div>
+                        <p>镜像 R → 按 <span class="key">J</span></p>
+                    </div>
+                </div>
+            </div>
+            <button id="practice-start-btn" class="btn">开始练习</button>
+        </div>
+
+        <!-- 实验界面 -->
+        <div id="experiment-screen" class="screen">
+            <div class="trial-info">
+                <div class="progress">
+                    试次: <span id="current-trial">0</span>/<span id="total-trial-count">60</span>
+                </div>
+                <div class="score">
+                    正确率: <span id="accuracy">0</span>%
+                </div>
+            </div>
+            
+            <div class="fixation" id="fixation">+</div>
+            
+            <div class="stimulus-container" id="stimulus-container">
+                <div class="letter-display" id="letter-display">R</div>
+            </div>
+
+            <div class="feedback" id="feedback"></div>
+
+            <div class="instructions-bottom">
+                <p>正常 R → 按 <span class="key">F</span> 键</p>
+                <p>镜像 R → 按 <span class="key">J</span> 键</p>
+            </div>
+        </div>
+
+        <!-- 休息界面 -->
+        <div id="break-screen" class="screen">
+            <h1>休息时间</h1>
+            <div class="instructions">
+                <p>您已经完成了一半的试次！</p>
+                <p>请稍作休息，准备好后请按空格键继续。</p>
+                <div class="progress-summary">
+                    <p>已完成: <span id="completed-trials">30</span>/<span>60</span> 试次</p>
+                    <p>当前正确率: <span id="current-accuracy">0</span>%</p>
+                </div>
+            </div>
+            <button id="continue-btn" class="btn">继续实验</button>
+        </div>
+
+        <!-- 结束界面 -->
+        <div id="end-screen" class="screen">
+            <h1>实验完成！</h1>
+            
+            <div class="results">
+                <h2>实验结果汇总</h2>
+                <div class="summary-table">
+                    <table id="summary-table">
+                        <tr>
+                            <th>统计项目</th>
+                            <th>数值</th>
+                        </tr>
+                        <tr>
+                            <td>总试次数</td>
+                            <td id="result-total">0</td>
+                        </tr>
+                        <tr>
+                            <td>正确试次数</td>
+                            <td id="result-correct">0</td>
+                        </tr>
+                        <tr>
+                            <td>正确率</td>
+                            <td id="result-accuracy">0%</td>
+                        </tr>
+                        <tr>
+                            <td>平均反应时</td>
+                            <td id="result-rt">0ms</td>
+                        </tr>
+                        <tr>
+                            <td>最短反应时</td>
+                            <td id="result-min-rt">0ms</td>
+                        </tr>
+                        <tr>
+                            <td>最长反应时</td>
+                            <td id="result-max-rt">0ms</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="participant-info">
+                <h3>参与者信息</h3>
+                <table id="participant-table">
+                    <tr>
+                        <th>项目</th>
+                        <th>信息</th>
+                    </tr>
+                    <tr>
+                        <td>参与者编号</td>
+                        <td id="result-participant-id">-</td>
+                    </tr>
+                    <tr>
+                        <td>年龄</td>
+                        <td id="result-age">-</td>
+                    </tr>
+                    <tr>
+                        <td>性别</td>
+                        <td id="result-gender">-</td>
+                    </tr>
+                    <tr>
+                        <td>利手</td>
+                        <td id="result-handedness">-</td>
+                    </tr>
+                    <tr>
+                        <td>教育程度</td>
+                        <td id="result-education">-</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="detailed-results">
+                <h3>详细数据</h3>
+                <div class="table-container">
+                    <table id="detailed-table">
+                        <thead>
+                            <tr>
+                                <th>试次</th>
+                                <th>角度</th>
+                                <th>刺激类型</th>
+                                <th>被试反应</th>
+                                <th>是否正确</th>
+                                <th>反应时(ms)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detailed-data">
+                            <!-- 详细数据将通过JavaScript动态添加 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="angle-summary">
+                <h3>各角度表现</h3>
+                <div class="table-container">
+                    <table id="angle-table">
+                        <thead>
+                            <tr>
+                                <th>角度</th>
+                                <th>试次数</th>
+                                <th>正确率</th>
+                                <th>平均反应时</th>
+                            </tr>
+                        </thead>
+                        <tbody id="angle-data">
+                            <!-- 角度数据将通过JavaScript动态添加 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="actions">
+                <button id="download-csv-btn" class="btn secondary">下载CSV数据</button>
+                <button id="download-json-btn" class="btn secondary">下载JSON数据</button>
+                <button id="restart-btn" class="btn">重新开始</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
