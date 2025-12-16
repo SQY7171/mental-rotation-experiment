@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>心理旋转实验</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- 指导语页面 -->
+    <div id="instructions-page" class="page active">
+        <div class="header">
+            <h1>心理旋转实验</h1>
+            <p class="subtitle">基于 Cooper & Shepard (1973) 的实验范式</p>
+        </div>
+        
+        <div class="instruction-box">
+            <h2>实验说明</h2>
+            <p>本实验旨在研究人类对旋转视觉刺激的认知加工过程。实验过程中，您将看到一系列字母和数字，它们可能以不同角度呈现。您的任务是判断这些字符是正常版本还是镜像版本。</p>
+            
+            <div class="important-note">
+                <p>请确保在安静的环境中完成实验，并将注意力集中在屏幕上。</p>
+            </div>
+            
+            <h2>实验任务</h2>
+            <ul>
+                <li>屏幕上将呈现一个字符（R, J, G, 2, 5, 7）</li>
+                <li>字符可能被旋转到不同角度（0°, 60°, 120°, 180°, 240°, 300°）</li>
+                <li>字符可能是正常版本或镜像版本</li>
+                <li>您的任务是判断字符是<strong>正常</strong>还是<strong>镜像</strong></li>
+                <li>请<strong>忽略字符的旋转角度</strong>，只关注它是正常还是镜像</li>
+            </ul>
+            
+            <h2>镜像示例</h2>
+            <div class="mirror-example">
+                <div class="example-item">
+                    <div class="example-label">正常版本</div>
+                    <div class="example-char" style="transform: rotate(0deg)">R</div>
+                </div>
+                <div class="example-item">
+                    <div class="example-label">旋转60°</div>
+                    <div class="example-char" style="transform: rotate(60deg)">R</div>
+                </div>
+                <div class="example-item">
+                    <div class="example-label">镜像版本</div>
+                    <div class="example-char" style="transform: scaleX(-1) rotate(0deg)">R</div>
+                </div>
+                <div class="example-item">
+                    <div class="example-label">镜像旋转60°</div>
+                    <div class="example-char" style="transform: scaleX(-1) rotate(60deg)">R</div>
+                </div>
+            </div>
+            <p class="example-note">请注意：镜像版本是字符的水平翻转，旋转角度不影响您的判断</p>
+            
+            <h2>按键说明</h2>
+            <p>请将左手食指放在<strong>F键</strong>，右手食指放在<strong>J键</strong>上：</p>
+            
+            <div class="key-instructions">
+                <div class="key-item">
+                    <div class="key">F</div>
+                    <div class="key-desc">正常版本</div>
+                </div>
+                <div class="key-item">
+                    <div class="key">J</div>
+                    <div class="key-desc">镜像版本</div>
+                </div>
+            </div>
+            
+            <h2>实验流程</h2>
+            <p>实验分为两个阶段：</p>
+            <ol>
+                <li><strong>练习阶段</strong>：12个试次，帮助您熟悉任务</li>
+                <li><strong>正式实验</strong>：72个试次（约10-15分钟）</li>
+            </ol>
+            
+            <p>每个试次流程：</p>
+            <ul>
+                <li>注视点呈现 (500毫秒)</li>
+                <li>刺激呈现 (直到您按键反应)</li>
+                <li>反应时限：3秒</li>
+                <li>反馈呈现 (500毫秒)</li>
+            </ul>
+            
+            <div class="important-note">
+                <p>请尽量快速且准确地做出反应。实验数据将仅用于研究目的，所有个人信息将被匿名化处理。</p>
+            </div>
+        </div>
+        
+        <div class="start-button-container">
+            <button class="start-button" id="start-experiment">
+                开始实验
+            </button>
+        </div>
+        
+        <div class="experiment-info">
+            <p>实验编号: EXP-2023-MR01 | 条件: N (无先验信息) | 预计时长: 10-15分钟</p>
+        </div>
+    </div>
+    
+    <!-- 实验页面 -->
+    <div id="experiment-page" class="page">
+        <div class="experiment-header">
+            <h2>心理旋转实验 - 进行中</h2>
+            <p id="phase-indicator">练习阶段</p>
+        </div>
+        
+        <div id="experiment-container">
+            <div id="trial-display">
+                <!-- 注视点 -->
+                <div id="fixation">
+                    <div class="fixation-cross">+</div>
+                    <p class="fixation-text">请注视中心点</p>
+                </div>
+                
+                <!-- 刺激呈现 -->
+                <div id="stimulus" style="display: none;">
+                    <div id="character-display"></div>
+                    <p class="response-instruction">请按 F(正常) 或 J(镜像)</p>
+                </div>
+                
+                <!-- 反馈 -->
+                <div id="feedback" style="display: none;">
+                    <div id="feedback-icon"></div>
+                    <p id="feedback-message"></p>
+                    <p id="reaction-time-display"></p>
+                </div>
+            </div>
+            
+            <!-- 实验信息 -->
+            <div id="experiment-info-panel">
+                <div class="info-item">
+                    <span>试次:</span>
+                    <span id="trial-counter">0/0</span>
+                </div>
+                <div class="info-item">
+                    <span>阶段:</span>
+                    <span id="current-phase">练习</span>
+                </div>
+                <div class="info-item">
+                    <span>正确率:</span>
+                    <span id="accuracy-display">0%</span>
+                </div>
+                <div class="info-item">
+                    <span>平均RT:</span>
+                    <span id="average-rt">0ms</span>
+                </div>
+            </div>
+            
+            <!-- 进度条 -->
+            <div id="progress-section">
+                <div id="progress-bar">
+                    <div id="progress-fill"></div>
+                </div>
+                <p id="progress-text">进度: <span id="progress-percent">0</span>%</p>
+            </div>
+            
+            <!-- 控制按钮 -->
+            <div class="control-buttons">
+                <button id="pause-btn" class="control-btn">暂停</button>
+                <button id="quit-btn" class="control-btn">退出实验</button>
+            </div>
+        </div>
+        
+        <!-- 暂停模态框 -->
+        <div id="pause-modal" style="display: none;">
+            <div class="modal-content">
+                <h3>实验已暂停</h3>
+                <p>您可以稍作休息。</p>
+                <div class="modal-buttons">
+                    <button id="resume-btn" class="modal-btn">继续实验</button>
+                    <button id="confirm-quit-btn" class="modal-btn quit">确认退出</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 结果页面 -->
+    <div id="results-page" class="page">
+        <div class="results-header">
+            <h2>实验结果</h2>
+        </div>
+        
+        <div class="results-container">
+            <div class="summary-stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="final-accuracy">0%</div>
+                    <div class="stat-label">正确率</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="final-avg-rt">0ms</div>
+                    <div class="stat-label">平均反应时</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="total-trials">0</div>
+                    <div class="stat-label">总试次数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="experiment-time">0s</div>
+                    <div class="stat-label">实验时长</div>
+                </div>
+            </div>
+            
+            <div class="charts-section">
+                <div class="chart-container">
+                    <h3>反应时与旋转角度的关系</h3>
+                    <canvas id="rt-chart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>版本正确率对比</h3>
+                    <canvas id="accuracy-chart"></canvas>
+                </div>
+            </div>
+            
+            <div class="data-section">
+                <h3>详细数据</h3>
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>试次</th>
+                                <th>字符</th>
+                                <th>角度</th>
+                                <th>版本</th>
+                                <th>反应</th>
+                                <th>正确</th>
+                                <th>反应时(ms)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="data-table-body">
+                            <!-- 数据将动态填充 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="results-buttons">
+                <button id="download-btn" class="action-btn">下载数据 (CSV)</button>
+                <button id="restart-btn" class="action-btn secondary">重新开始</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
